@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Swiftpath{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-custom">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="feature-icon mx-auto mb-3">
+                            <i data-feather="user-plus"></i>
+                        </div>
+                        <h2 class="fw-bold text-primary">Join Swiftpath</h2>
+                        <p class="text-muted">Create your account to start using smart drone delivery</p>
+                    </div>
+
+                    <form method="POST" id="registerForm" novalidate>
+                        <!-- Account Type Selection -->
+                        <div class="mb-4">
+                            <label class="form-label">Account Type</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="user_type" id="customer" value="customer" checked>
+                                    <label class="btn btn-outline-primary w-100 text-start" for="customer">
+                                        <div class="d-flex align-items-center">
+                                            <i data-feather="shopping-bag" class="me-2" style="width: 18px; height: 18px;"></i>
+                                            <div>
+                                                <div class="fw-medium">Customer</div>
+                                                <small class="text-muted">Place and track orders</small>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="user_type" id="admin" value="admin">
+                                    <label class="btn btn-outline-primary w-100 text-start" for="admin">
+                                        <div class="d-flex align-items-center">
+                                            <i data-feather="settings" class="me-2" style="width: 18px; height: 18px;"></i>
+                                            <div>
+                                                <div class="fw-medium">Admin</div>
+                                                <small class="text-muted">Manage system</small>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personal Information -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="full_name" class="form-label">Full Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i data-feather="user" style="width: 18px; height: 18px;"></i>
+                                    </span>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="full_name" 
+                                           name="full_name" 
+                                           placeholder="Enter your full name"
+                                           required
+                                           autocomplete="name">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="username" class="form-label">Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">@</span>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="username" 
+                                           name="username" 
+                                           placeholder="Choose a username"
+                                           required
+                                           autocomplete="username">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i data-feather="mail" style="width: 18px; height: 18px;"></i>
+                                    </span>
+                                    <input type="email" 
+                                           class="form-control" 
+                                           id="email" 
+                                           name="email" 
+                                           placeholder="your@email.com"
+                                           required
+                                           autocomplete="email">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i data-feather="phone" style="width: 18px; height: 18px;"></i>
+                                    </span>
+                                    <input type="tel" 
+                                           class="form-control" 
+                                           id="phone" 
+                                           name="phone" 
+                                           placeholder="+91 98765 43210"
+                                           autocomplete="tel">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i data-feather="lock" style="width: 18px; height: 18px;"></i>
+                                </span>
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="password" 
+                                       name="password" 
+                                       placeholder="Create a strong password"
+                                       required
+                                       autocomplete="new-password">
+                                <button class="btn btn-outline-secondary" 
+                                        type="button" 
+                                        id="togglePassword"
+                                        title="Show/Hide Password">
+                                    <i data-feather="eye" style="width: 18px; height: 18px;"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">
+                                <small class="text-muted">Password must be at least 6 characters long</small>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="mb-4">
+                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i data-feather="lock" style="width: 18px; height: 18px;"></i>
+                                </span>
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="confirm_password" 
+                                       name="confirm_password" 
+                                       placeholder="Confirm your password"
+                                       required
+                                       autocomplete="new-password">
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                <label class="form-check-label" for="agreeTerms">
+                                    I agree to the 
+                                    <a href="#" class="text-decoration-none">Terms of Service</a> and 
+                                    <a href="#" class="text-decoration-none">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            <i data-feather="user-plus" style="width: 18px; height: 18px;"></i>
+                            Create Account
+                        </button>
+
+                        <div class="text-center">
+                            <p class="text-muted mb-0">
+                                Already have an account? 
+                                <a href="{{ url_for('login') }}" class="text-decoration-none fw-medium">
+                                    Sign in here
+                                </a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Benefits Section -->
+            <div class="card border-primary mt-4">
+                <div class="card-body p-4">
+                    <h6 class="text-primary mb-3">
+                        <i data-feather="gift" class="me-2"></i>
+                        Why Join Swiftpath?
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i data-feather="zap" class="text-warning me-2" style="width: 16px; height: 16px;"></i>
+                                <small>30-minute delivery across Dehradun</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i data-feather="eye" class="text-info me-2" style="width: 16px; height: 16px;"></i>
+                                <small>Real-time order tracking</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i data-feather="shield" class="text-success me-2" style="width: 16px; height: 16px;"></i>
+                                <small>Secure and reliable delivery</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i data-feather="smartphone" class="text-primary me-2" style="width: 16px; height: 16px;"></i>
+                                <small>Easy-to-use platform</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password visibility toggle
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            const icon = this.querySelector('i');
+            if (type === 'password') {
+                icon.setAttribute('data-feather', 'eye');
+            } else {
+                icon.setAttribute('data-feather', 'eye-off');
+            }
+            feather.replace();
+        });
+    }
+
+    // Form validation
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            let isValid = true;
+            const errors = [];
+            
+            // Get form values
+            const fullName = document.getElementById('full_name').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+            
+            // Clear previous validation
+            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            
+            // Validate required fields
+            if (!fullName) {
+                document.getElementById('full_name').classList.add('is-invalid');
+                errors.push('Full name is required');
+                isValid = false;
+            }
+            
+            if (!username) {
+                document.getElementById('username').classList.add('is-invalid');
+                errors.push('Username is required');
+                isValid = false;
+            } else if (username.length < 3) {
+                document.getElementById('username').classList.add('is-invalid');
+                errors.push('Username must be at least 3 characters long');
+                isValid = false;
+            }
+            
+            if (!email) {
+                document.getElementById('email').classList.add('is-invalid');
+                errors.push('Email is required');
+                isValid = false;
+            } else if (!isValidEmail(email)) {
+                document.getElementById('email').classList.add('is-invalid');
+                errors.push('Please enter a valid email address');
+                isValid = false;
+            }
+            
+            if (!password) {
+                document.getElementById('password').classList.add('is-invalid');
+                errors.push('Password is required');
+                isValid = false;
+            } else if (password.length < 6) {
+                document.getElementById('password').classList.add('is-invalid');
+                errors.push('Password must be at least 6 characters long');
+                isValid = false;
+            }
+            
+            if (!confirmPassword) {
+                document.getElementById('confirm_password').classList.add('is-invalid');
+                errors.push('Please confirm your password');
+                isValid = false;
+            } else if (password !== confirmPassword) {
+                document.getElementById('confirm_password').classList.add('is-invalid');
+                errors.push('Passwords do not match');
+                isValid = false;
+            }
+            
+            if (!agreeTerms) {
+                document.getElementById('agreeTerms').classList.add('is-invalid');
+                errors.push('You must agree to the Terms of Service and Privacy Policy');
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                showValidationErrors(errors);
+            }
+        });
+    }
+    
+    // Real-time validation
+    document.getElementById('confirm_password').addEventListener('input', function() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = this.value;
+        
+        if (confirmPassword && password !== confirmPassword) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+    });
+    
+    document.getElementById('password').addEventListener('input', function() {
+        const confirmPassword = document.getElementById('confirm_password').value;
+        const password = this.value;
+        
+        if (password.length >= 6) {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        } else if (password.length > 0) {
+            this.classList.add('is-invalid');
+            this.classList.remove('is-valid');
+        }
+        
+        // Check confirm password if it has a value
+        const confirmField = document.getElementById('confirm_password');
+        if (confirmPassword && password !== confirmPassword) {
+            confirmField.classList.add('is-invalid');
+        } else if (confirmPassword) {
+            confirmField.classList.remove('is-invalid');
+        }
+    });
+    
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+    
+    function showValidationErrors(errors) {
+        // Remove existing error alert
+        const existingAlert = document.querySelector('.alert-danger');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+        
+        if (errors.length > 0) {
+            const errorAlert = document.createElement('div');
+            errorAlert.className = 'alert alert-danger';
+            errorAlert.innerHTML = `
+                <div class="d-flex align-items-start">
+                    <i data-feather="alert-circle" class="me-2 mt-1" style="width: 18px; height: 18px;"></i>
+                    <div>
+                        <strong>Please fix the following errors:</strong>
+                        <ul class="mb-0 mt-1">
+                            ${errors.map(error => `<li>${error}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            const form = document.getElementById('registerForm');
+            form.insertBefore(errorAlert, form.firstChild);
+            feather.replace();
+            
+            // Scroll to error
+            errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+});
+</script>
+{% endblock %}

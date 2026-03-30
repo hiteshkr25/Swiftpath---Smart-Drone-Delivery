@@ -1,0 +1,531 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Swiftpath{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<section class="dashboard-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-6 fw-bold mb-2">
+                    Admin Dashboard
+                </h1>
+                <p class="lead mb-0 opacity-90">
+                    Monitor orders, manage drones, and oversee delivery operations
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <button class="btn btn-light me-2" id="refreshDronesBtn">
+                    <i data-feather="refresh-cw"></i>
+                    Refresh Data
+                </button>
+                <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#systemStatsModal">
+                    <i data-feather="bar-chart-2"></i>
+                    System Stats
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-4">
+    <!-- Alert Container for Notifications -->
+    <div id="alertContainer"></div>
+    
+    <!-- System Overview Stats -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-2 col-md-4 col-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-number text-primary">{{ stats.total_orders }}</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-number text-warning">{{ stats.pending_orders }}</div>
+                    <div class="stat-label">Pending Approval</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-number text-success">{{ stats.active_drones }}</div>
+                    <div class="stat-label">Idle Drones</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-number text-info">{{ stats.delivering_drones }}</div>
+                    <div class="stat-label">On Delivery</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-number text-warning">{{ stats.charging_drones }}</div>
+                    <div class="stat-label">Charging ⚡</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-number text-danger">{{ stats.low_battery_drones }}</div>
+                    <div class="stat-label">Low Battery ⚠</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Tabs -->
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="adminTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab">
+                        <i data-feather="package" class="me-2"></i>
+                        Order Management
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="drones-tab" data-bs-toggle="tab" data-bs-target="#drones" type="button" role="tab">
+                        <i data-feather="navigation" class="me-2"></i>
+                        Drone Fleet
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="routes-tab" data-bs-toggle="tab" data-bs-target="#routes" type="button" role="tab">
+                        <i data-feather="map" class="me-2"></i>
+                        Route Visualization
+                    </button>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="card-body">
+            <div class="tab-content" id="adminTabContent">
+                <!-- Orders Tab -->
+                <div class="tab-pane fade show active" id="orders" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0">All Orders</h5>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary" onclick="filterOrders('all')">All</button>
+                            <button class="btn btn-outline-warning" onclick="filterOrders('pending')">Pending</button>
+                            <button class="btn btn-outline-info" onclick="filterOrders('confirmed')">Confirmed</button>
+                            <button class="btn btn-outline-primary" onclick="filterOrders('in_transit')">In Transit</button>
+                            <button class="btn btn-outline-success" onclick="filterOrders('delivered')">Delivered</button>
+                        </div>
+                    </div>
+                    
+                    {% if orders %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Drone</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                {% for order in orders %}
+                                <tr data-status="{{ order.status }}">
+                                    <td>
+                                        <span class="fw-medium">#{{ order.id }}</span>
+                                        {% if order.order_type == 'fast' %}
+                                            <span class="badge bg-warning text-dark">Fast</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <div class="fw-medium">{{ order.customer.full_name or order.customer.username }}</div>
+                                            <small class="text-muted">{{ order.customer.email }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="small">
+                                            {% set items = order.get_items_list() %}
+                                            {% if items %}
+                                                {{ items|length }} item(s)
+                                                {% if order.total_weight %}
+                                                    <br><span class="text-muted">{{ order.total_weight }}kg</span>
+                                                {% endif %}
+                                            {% else %}
+                                                No items
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if order.assigned_drone %}
+                                            <div class="small">
+                                                <div class="fw-medium">{{ order.assigned_drone.name }}</div>
+                                                <div class="drone-status {{ order.assigned_drone.status }}">
+                                                    <div class="drone-status-dot"></div>
+                                                    {{ order.assigned_drone.status|title }}
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">Not assigned</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="order-status {{ order.status }}">
+                                            {{ order.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="small">
+                                            {{ (order.created_at | as_ist).strftime('%b %d, %Y') }}<br>
+                                            <span class="text-muted">{{ (order.created_at | as_ist).strftime('%I:%M %p') }} IST</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ url_for('track_order', order_id=order.id) }}" 
+                                               class="btn btn-outline-primary"
+                                               title="View Details">
+                                                <i data-feather="eye"></i>
+                                            </a>
+                                            {% if order.status == 'pending' %}
+                                            <button class="btn btn-outline-success approve-order-btn" 
+                                                    data-order-id="{{ order.id }}"
+                                                    title="Approve Order">
+                                                <i data-feather="check"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger deny-order-btn" 
+                                                    data-order-id="{{ order.id }}"
+                                                    title="Deny Order">
+                                                <i data-feather="x"></i>
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <div class="mb-3">
+                            <i data-feather="package" style="width: 48px; height: 48px;" class="text-muted"></i>
+                        </div>
+                        <h6 class="text-muted">No orders found</h6>
+                        <p class="text-muted">Orders will appear here as customers place them.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Drones Tab -->
+                <div class="tab-pane fade" id="drones" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0">Drone Fleet &amp; Charging Stations</h5>
+                        <button class="btn btn-outline-primary btn-sm" id="refreshDronesBtn">
+                            <i data-feather="refresh-cw"></i> Refresh Live Data
+                        </button>
+                    </div>
+
+                    <!-- Charging stations summary -->
+                    {% if stations %}
+                    <div class="row g-3 mb-4">
+                        {% for station in stations %}
+                        <div class="col-md-4">
+                            <div class="card border-warning">
+                                <div class="card-body py-3">
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <span style="font-size:20px;">⚡</span>
+                                        <strong>{{ station.name }}</strong>
+                                    </div>
+                                    <small class="text-muted">{{ station.location }}</small><br>
+                                    <small>Capacity: {{ station.capacity }} drones</small>
+                                    <div class="mt-2">
+                                        {% set charging_here = drones|selectattr('charging_station_id', 'equalto', station.id)|selectattr('status', 'equalto', 'charging')|list %}
+                                        <span class="badge bg-warning text-dark">{{ charging_here|length }} charging now</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Live fleet table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Drone</th>
+                                    <th>State</th>
+                                    <th style="min-width:160px;">Battery</th>
+                                    <th>Charging Station</th>
+                                    <th>Current Order</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fleetTableBody">
+                            {% for drone in drones %}
+                            {% set battColor = 'success' if drone.battery_level >= 60 else 'warning' if drone.battery_level >= 30 else 'danger' %}
+                            {% set stateColors = {'idle': 'success', 'assigned': 'primary', 'picking_up': 'info',
+                                                  'delivering': 'warning', 'low_battery': 'danger', 'charging': 'warning'} %}
+                            {% set stateIcons = {'idle': '😴', 'assigned': '📋', 'picking_up': '📦',
+                                                 'delivering': '🚁', 'low_battery': '⚠️', 'charging': '⚡'} %}
+                            <tr>
+                                <td><strong>{{ drone.name }}</strong></td>
+                                <td>
+                                    <span class="badge bg-{{ stateColors.get(drone.status, 'secondary') }}">
+                                        {{ stateIcons.get(drone.status, '') }} {{ drone.status|title }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height:8px;border-radius:4px;">
+                                            <div class="progress-bar bg-{{ battColor }}" style="width:{{ drone.battery_level|round(0) }}%;"></div>
+                                        </div>
+                                        <small class="fw-semibold" style="min-width:36px;">{{ drone.battery_level|round(1) }}%</small>
+                                    </div>
+                                    {% if drone.status == 'charging' %}<small class="text-warning">⚡ +5%/min</small>{% endif %}
+                                    {% if drone.battery_level < 20 %}<small class="text-danger">⚠ Critical</small>{% endif %}
+                                </td>
+                                <td>
+                                    {% if drone.charging_station %}
+                                        <small>{{ drone.charging_station.name }}</small>
+                                    {% else %}
+                                        <small class="text-muted">—</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% set active_orders = drone.orders|selectattr('status', 'in', ['confirmed', 'in_transit', 'assigned'])|list %}
+                                    {% if active_orders %}
+                                        {% set o = active_orders[0] %}
+                                        <a href="{{ url_for('track_order', order_id=o.id) }}" class="small">
+                                            Order #{{ o.id }}
+                                        </a>
+                                    {% else %}
+                                        <small class="text-muted">None</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if not drones %}
+                    <div class="text-center py-5">
+                        <span style="font-size:48px;">🚁</span>
+                        <h6 class="text-muted mt-3">Fleet is initializing…</h6>
+                        <p class="text-muted">Reload the page in a moment.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Routes Tab -->
+                <div class="tab-pane fade" id="routes" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0">Live Route Visualization</h5>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary" onclick="toggleMapView('all')">All Drones</button>
+                            <button class="btn btn-outline-primary" onclick="toggleMapView('active')">Active Only</button>
+                            <button class="btn btn-outline-success" onclick="toggleMapView('available')">Available Only</button>
+                        </div>
+                    </div>
+                    
+                    <div class="map-container large" id="adminMap">
+                        <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                            <div class="text-center">
+                                <div class="spinner mb-3"></div>
+                                <p>Loading route visualization...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3 mt-3 text-center">
+                        <div class="col"><div class="d-flex align-items-center justify-content-center gap-1"><span>🚁</span><small class="fw-medium">Idle Drone</small></div></div>
+                        <div class="col"><div class="d-flex align-items-center justify-content-center gap-1"><span>🔋</span><small class="fw-medium">Charging</small></div></div>
+                        <div class="col"><div class="d-flex align-items-center justify-content-center gap-1"><span>⚡</span><small class="fw-medium">Charging Station</small></div></div>
+                        <div class="col"><div class="d-flex align-items-center justify-content-center gap-1"><span>📦</span><small class="fw-medium">Warehouse</small></div></div>
+                        <div class="col"><div class="d-flex align-items-center justify-content-center gap-1"><span>📍</span><small class="fw-medium">Delivery</small></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Stats Modal -->
+<div class="modal fade" id="systemStatsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i data-feather="bar-chart-2" class="me-2"></i>
+                    System Statistics
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body text-center">
+                                <h3>{{ stats.total_orders }}</h3>
+                                <p class="mb-0">Total Orders Processed</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h3>{{ orders|selectattr('status', 'equalto', 'delivered')|list|length }}</h3>
+                                <p class="mb-0">Successfully Delivered</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-info text-white">
+                            <div class="card-body text-center">
+                                <h3>{{ stats.total_drones }}</h3>
+                                <p class="mb-0">Drones in Fleet</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-warning text-dark">
+                            <div class="card-body text-center">
+                                <h3>{{ stats.pending_orders }}</h3>
+                                <p class="mb-0">Pending Approval</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6>System Performance</h6>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <small class="text-muted">Average Delivery Time</small>
+                            <div class="fw-bold">~25 minutes</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Success Rate</small>
+                            <div class="fw-bold">98.5%</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Active Coverage</small>
+                            <div class="fw-bold">Dehradun Central</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Fleet Efficiency</small>
+                            <div class="fw-bold">92%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize admin map
+    try {
+        const adminMap = new DashboardMapManager('adminMap');
+        window.adminMapInstance = adminMap;
+        
+        // Auto-refresh map data every 30 seconds
+        setInterval(() => {
+            if (adminMap && typeof adminMap.refreshDroneData === 'function') {
+                adminMap.refreshDroneData();
+            }
+        }, 30000);
+        
+    } catch (error) {
+        console.error('Error initializing admin map:', error);
+        const mapContainer = document.getElementById('adminMap');
+        if (mapContainer) {
+            mapContainer.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                    <div class="text-center">
+                        <i data-feather="map-off" style="width: 48px; height: 48px;" class="mb-3"></i>
+                        <p>Route visualization temporarily unavailable</p>
+                    </div>
+                </div>
+            `;
+            feather.replace();
+        }
+    }
+    
+    // Re-render feather icons when tab is shown
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function() {
+            feather.replace();
+        });
+    });
+});
+
+function filterOrders(status) {
+    const rows = document.querySelectorAll('#ordersTableBody tr');
+    
+    rows.forEach(row => {
+        if (status === 'all' || row.dataset.status === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // Update active button
+    document.querySelectorAll('.btn-group button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+}
+
+function refreshDroneStatus() {
+    const btn = event.target.closest('button');
+    const originalHTML = btn.innerHTML;
+    
+    btn.innerHTML = '<span class="spinner"></span> Refreshing...';
+    btn.disabled = true;
+    
+    // Simulate refresh (in real implementation, this would make API call)
+    setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        feather.replace();
+        
+        // Show success message
+        if (window.adminOrderManager) {
+            window.adminOrderManager.showAlert('Drone status refreshed successfully!', 'success');
+        }
+    }, 2000);
+}
+
+function toggleMapView(viewType) {
+    // Update active button
+    event.target.parentNode.querySelectorAll('button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // In a real implementation, this would filter the map display
+    console.log('Switching map view to:', viewType);
+}
+</script>
+{% endblock %}

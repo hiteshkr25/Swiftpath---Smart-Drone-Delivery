@@ -1,0 +1,57 @@
+[2026-03-26 10:10:35 +0000] [193] [INFO] Starting gunicorn 23.0.0
+[2026-03-26 10:10:35 +0000] [193] [INFO] Listening at: http://0.0.0.0:5000 (193)
+[2026-03-26 10:10:35 +0000] [193] [INFO] Using worker: sync
+[2026-03-26 10:10:35 +0000] [204] [INFO] Booting worker with pid: 204
+[2026-03-26 10:10:36 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:36 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:36 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:36 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:36 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:37 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:37 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:37 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:37 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:37 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:37 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:37 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:37 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:38 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:38 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:38 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:38 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:38 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:38 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:38 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:38 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:39 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:39 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:39 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:39 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:39 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:39 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:39 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:39 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:40 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:40 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:40 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:40 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:10:40 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:12:36 +0000] [204] [INFO] Worker reloading: /home/runner/workspace/routes.py modified
+[2026-03-26 10:12:36 +0000] [204] [INFO] Worker exiting (pid: 204)
+[2026-03-26 10:12:36 +0000] [426] [INFO] Booting worker with pid: 426
+[2026-03-26 10:13:03 +0000] [426] [INFO] Worker reloading: /home/runner/workspace/routes.py modified
+[2026-03-26 10:13:03 +0000] [426] [INFO] Worker exiting (pid: 426)
+[2026-03-26 10:13:03 +0000] [453] [INFO] Booting worker with pid: 453
+[2026-03-26 10:13:22 +0000] [453] [INFO] Worker reloading: /home/runner/workspace/routes.py modified
+[2026-03-26 10:13:22 +0000] [453] [INFO] Worker exiting (pid: 453)
+[2026-03-26 10:13:22 +0000] [486] [INFO] Booting worker with pid: 486
+[2026-03-26 10:13:25 +0000] [193] [INFO] Handling signal: winch
+[2026-03-26 10:13:59 +0000] [486] [INFO] Worker reloading: /home/runner/workspace/routes.py modified
+[2026-03-26 10:13:59 +0000] [486] [INFO] Worker exiting (pid: 486)
+[2026-03-26 10:13:59 +0000] [526] [INFO] Booting worker with pid: 526
+[2026-03-26 10:14:05 +0000] [526] [INFO] Worker reloading: /home/runner/workspace/routes.py modified
+[2026-03-26 10:14:05 +0000] [526] [INFO] Worker exiting (pid: 526)
+[2026-03-26 10:14:05 +0000] [535] [INFO] Booting worker with pid: 535
+[2026-03-26 10:14:12 +0000] [193] [INFO] Handling signal: term
+[2026-03-26 10:14:12 +0000] [535] [INFO] Worker exiting (pid: 535)
+[2026-03-26 10:14:12 +0000] [193] [INFO] Shutting down: Master

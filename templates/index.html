@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+
+{% block title %}Swiftpath - Smart Drone Delivery in Dehradun{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    Smart Drone Delivery<br>
+                    <span class="text-warning">for Dehradun</span>
+                </h1>
+                <p class="lead mb-4">
+                    Experience the future of logistics with Swiftpath. Our AI-powered drone delivery system 
+                    uses advanced algorithms to provide fast, efficient, and reliable delivery services 
+                    across Dehradun.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.user_type == 'customer' %}
+                            <a href="{{ url_for('place_order') }}" class="btn btn-primary btn-lg">
+                                <i data-feather="send"></i> Place Order
+                            </a>
+                            <a href="{{ url_for('customer_dashboard') }}" class="btn btn-outline-primary btn-lg">
+                                <i data-feather="layout"></i> Dashboard
+                            </a>
+                        {% elif current_user.user_type in ['admin', 'vendor'] %}
+                            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary btn-lg">
+                                <i data-feather="settings"></i> Admin Dashboard
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+                            <i data-feather="user-plus"></i> Get Started
+                        </a>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">
+                            <i data-feather="log-in"></i> Login
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="position-relative">
+                    <div class="hero-animation">
+                        <svg width="400" height="300" viewBox="0 0 400 300" class="w-100">
+                            <!-- Drone illustration -->
+                            <g id="drone" transform="translate(200,150)">
+                                <circle cx="0" cy="0" r="20" fill="#007bff" opacity="0.9"/>
+                                <rect x="-15" y="-8" width="30" height="16" rx="4" fill="#0056b3"/>
+                                <circle cx="-25" cy="-15" r="8" fill="#28a745" opacity="0.7"/>
+                                <circle cx="25" cy="-15" r="8" fill="#28a745" opacity="0.7"/>
+                                <circle cx="-25" cy="15" r="8" fill="#28a745" opacity="0.7"/>
+                                <circle cx="25" cy="15" r="8" fill="#28a745" opacity="0.7"/>
+                                <text x="0" y="5" text-anchor="middle" fill="white" font-size="10" font-weight="bold">📦</text>
+                            </g>
+                            
+                            <!-- Flight path -->
+                            <path d="M50,200 Q200,100 350,180" stroke="#ffc107" stroke-width="3" fill="none" stroke-dasharray="10,5" opacity="0.8"/>
+                            
+                            <!-- Warehouses -->
+                            <g transform="translate(60,220)">
+                                <rect x="-15" y="-15" width="30" height="30" fill="#28a745" rx="4"/>
+                                <text x="0" y="5" text-anchor="middle" fill="white" font-size="16">🏪</text>
+                            </g>
+                            
+                            <g transform="translate(340,200)">
+                                <rect x="-15" y="-15" width="30" height="30" fill="#dc3545" rx="4"/>
+                                <text x="0" y="5" text-anchor="middle" fill="white" font-size="16">🏠</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold text-primary mb-3">Why Choose Swiftpath?</h2>
+                <p class="lead text-muted">
+                    Our cutting-edge drone delivery system combines AI-powered routing with real-time tracking 
+                    to deliver your packages faster and more efficiently than ever before.
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="feature-icon">
+                            <i data-feather="zap"></i>
+                        </div>
+                        <h5 class="card-title">Lightning Fast Delivery</h5>
+                        <p class="card-text text-muted">
+                            Our drones can deliver packages across Dehradun in under 30 minutes using 
+                            optimized flight paths calculated by advanced algorithms.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="feature-icon">
+                            <i data-feather="map"></i>
+                        </div>
+                        <h5 class="card-title">Smart Route Optimization</h5>
+                        <p class="card-text text-muted">
+                            Using Dijkstra's algorithm and real-time data, we calculate the most efficient 
+                            routes to multiple warehouses for consolidated deliveries.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="feature-icon">
+                            <i data-feather="eye"></i>
+                        </div>
+                        <h5 class="card-title">Real-time Tracking</h5>
+                        <p class="card-text text-muted">
+                            Track your package live on our interactive map. Watch your drone navigate 
+                            from pickup to delivery with precise location updates.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="feature-icon">
+                            <i data-feather="shield"></i>
+                        </div>
+                        <h5 class="card-title">Secure & Reliable</h5>
+                        <p class="card-text text-muted">
+                            Our drones are equipped with advanced security features and redundant 
+                            systems to ensure your packages arrive safely.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="feature-icon">
+                            <i data-feather="smartphone"></i>
+                        </div>
+                        <h5 class="card-title">Easy to Use</h5>
+                        <p class="card-text text-muted">
+                            Simple, intuitive interface makes ordering as easy as a few clicks. 
+                            No technical knowledge required - just point, click, and deliver.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="feature-icon">
+                            <i data-feather="wind"></i>
+                        </div>
+                        <h5 class="card-title">Eco-Friendly</h5>
+                        <p class="card-text text-muted">
+                            Electric drones mean zero emissions and reduced carbon footprint 
+                            compared to traditional delivery vehicles.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-5 bg-surface">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold text-primary mb-3">How It Works</h2>
+                <p class="lead text-muted">
+                    Our streamlined process makes drone delivery simple and efficient
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-3 col-md-6 text-center">
+                <div class="mb-3">
+                    <div class="feature-icon mx-auto">
+                        <span class="fw-bold fs-4">1</span>
+                    </div>
+                </div>
+                <h5>Place Your Order</h5>
+                <p class="text-muted">
+                    Select products from multiple warehouses and specify your delivery location
+                </p>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 text-center">
+                <div class="mb-3">
+                    <div class="feature-icon mx-auto">
+                        <span class="fw-bold fs-4">2</span>
+                    </div>
+                </div>
+                <h5>Route Optimization</h5>
+                <p class="text-muted">
+                    Our AI calculates the optimal path through all required warehouses
+                </p>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 text-center">
+                <div class="mb-3">
+                    <div class="feature-icon mx-auto">
+                        <span class="fw-bold fs-4">3</span>
+                    </div>
+                </div>
+                <h5>Drone Dispatch</h5>
+                <p class="text-muted">
+                    A drone is automatically assigned and begins collecting your items
+                </p>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 text-center">
+                <div class="mb-3">
+                    <div class="feature-icon mx-auto">
+                        <span class="fw-bold fs-4">4</span>
+                    </div>
+                </div>
+                <h5>Track & Receive</h5>
+                <p class="text-muted">
+                    Monitor your delivery in real-time and receive your package at your location
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Coverage Area Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="display-5 fw-bold text-primary mb-4">Dehradun Coverage</h2>
+                <p class="lead mb-4">
+                    Currently serving key areas across Dehradun with our network of 5 strategically 
+                    located warehouses and growing fleet of delivery drones.
+                </p>
+                
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i data-feather="check-circle" class="text-success me-2"></i>
+                            <span>Dehradun Central</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i data-feather="check-circle" class="text-success me-2"></i>
+                            <span>ISBT Area</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i data-feather="check-circle" class="text-success me-2"></i>
+                            <span>Paltan Bazaar</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i data-feather="check-circle" class="text-success me-2"></i>
+                            <span>Rajpur Road</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i data-feather="check-circle" class="text-success me-2"></i>
+                            <span>Clock Tower</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i data-feather="clock" class="text-warning me-2"></i>
+                            <span>More areas coming soon!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="map-container large" id="coverageMap">
+                    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                        <div class="text-center">
+                            <i data-feather="map" style="width: 48px; height: 48px;" class="mb-3"></i>
+                            <p>Interactive coverage map loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">Ready to Experience the Future?</h2>
+                <p class="lead mb-4">
+                    Join thousands of satisfied customers who have already switched to smart drone delivery.
+                </p>
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('register') }}" class="btn btn-light btn-lg me-3">
+                        <i data-feather="user-plus"></i> Sign Up Now
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+                        <i data-feather="log-in"></i> Already have an account?
+                    </a>
+                {% else %}
+                    {% if current_user.user_type == 'customer' %}
+                        <a href="{{ url_for('place_order') }}" class="btn btn-light btn-lg">
+                            <i data-feather="send"></i> Place Your First Order
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize coverage map
+    const coverageMapContainer = document.getElementById('coverageMap');
+    if (coverageMapContainer) {
+        try {
+            const coverageMap = new DashboardMapManager('coverageMap');
+            
+            // Add a subtle animation to the drone in the hero section
+            const drone = document.getElementById('drone');
+            if (drone) {
+                let angle = 0;
+                setInterval(() => {
+                    angle += 0.02;
+                    const x = 200 + Math.sin(angle) * 20;
+                    const y = 150 + Math.cos(angle * 0.5) * 10;
+                    drone.setAttribute('transform', `translate(${x},${y})`);
+                }, 50);
+            }
+        } catch (error) {
+            console.log('Map initialization skipped - Leaflet not available');
+            coverageMapContainer.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                    <div class="text-center">
+                        <i data-feather="map" style="width: 48px; height: 48px;" class="mb-3"></i>
+                        <p>Coverage map will be available once the service is initialized</p>
+                    </div>
+                </div>
+            `;
+            feather.replace();
+        }
+    }
+});
+</script>
+{% endblock %}

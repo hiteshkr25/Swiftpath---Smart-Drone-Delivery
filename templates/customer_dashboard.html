@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Dashboard - Swiftpath{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<section class="dashboard-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-6 fw-bold mb-2">
+                    Welcome back, {{ current_user.full_name or current_user.username }}!
+                </h1>
+                <p class="lead mb-0 opacity-90">
+                    Ready to place a new order or track your deliveries?
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ url_for('place_order') }}" class="btn btn-light btn-lg shadow-sm">
+                    <i data-feather="plus-circle"></i>
+                    Place New Order
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-4">
+    <!-- Quick Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-number">{{ orders|length }}</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-number">
+                        {{ orders|selectattr('status', 'in', ['in_transit','confirmed','assigned'])|list|length }}
+                    </div>
+                    <div class="stat-label">Active Deliveries</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-number">
+                        {{ orders|selectattr('status', 'equalto', 'delivered')|list|length }}
+                    </div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-number">{{ drones|selectattr('status', 'equalto', 'idle')|list|length }}</div>
+                    <div class="stat-label">Drones Ready</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Map — full width, same style as tracking page -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i data-feather="map" class="me-2"></i>
+                        Live Drone &amp; Warehouse Map — Dehradun
+                    </h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-sm btn-outline-secondary" id="locateMe" title="Use my location">
+                            <i data-feather="crosshair"></i> My Location
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" id="refreshMapBtn" title="Refresh map">
+                            <i data-feather="refresh-cw"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="map-container large" id="droneMap">
+                        <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                            <div class="text-center">
+                                <div class="spinner-border mb-3"></div>
+                                <p>Loading live map…</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Legend -->
+                <div class="card-footer">
+                    <div class="row text-center g-2">
+                        <div class="col">
+                            <div class="d-flex align-items-center justify-content-center gap-1">
+                                <span>🚁</span><small class="fw-medium">Active Delivery</small>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="d-flex align-items-center justify-content-center gap-1">
+                                <span>⚡</span><small class="fw-medium">Charging Station</small>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="d-flex align-items-center justify-content-center gap-1">
+                                <span>📦</span><small class="fw-medium">Warehouse</small>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="d-flex align-items-center justify-content-center gap-1">
+                                <span>👤</span><small class="fw-medium">Your Location</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders + Quick Actions -->
+    <div class="row g-4">
+        <!-- Recent Orders -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i data-feather="package" class="me-2"></i>
+                        Recent Orders
+                    </h5>
+                    <a href="{{ url_for('place_order') }}" class="btn btn-sm btn-outline-primary">
+                        <i data-feather="plus"></i> New Order
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Items</th>
+                                        <th>Status</th>
+                                        <th>Drone</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                    <tr>
+                                        <td><span class="fw-medium">#{{ order.id }}</span></td>
+                                        <td>
+                                            <div class="small">
+                                                {% set items = order.get_items_list() %}
+                                                {% if items %}
+                                                    {{ items|length }} item(s)
+                                                    {% if order.total_weight %}<br><small class="text-muted">{{ order.total_weight }}kg</small>{% endif %}
+                                                {% else %}
+                                                    No items
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="order-status {{ order.status }}">
+                                                {{ order.status|replace('_',' ')|title }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if order.assigned_drone %}
+                                            <div class="small">
+                                                <div>{{ order.assigned_drone.name }}</div>
+                                                <div class="text-muted">{{ order.assigned_drone.battery_level|round(0) }}% 🔋</div>
+                                            </div>
+                                            {% else %}
+                                            <small class="text-muted">—</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="small">
+                                                {{ (order.created_at | as_ist).strftime('%b %d, %Y') }}<br>
+                                                <span class="text-muted">{{ (order.created_at | as_ist).strftime('%I:%M %p') }} IST</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ url_for('track_order', order_id=order.id) }}"
+                                                   class="btn btn-outline-primary" title="Track Order">
+                                                    <i data-feather="eye"></i>
+                                                </a>
+                                                {% if order.status in ['pending', 'confirmed'] %}
+                                                <button class="btn btn-outline-secondary" title="Cancel"
+                                                        onclick="cancelOrder({{ order.id }})">
+                                                    <i data-feather="x"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-3">
+                                <i data-feather="package" style="width:48px;height:48px;" class="text-muted"></i>
+                            </div>
+                            <h6 class="text-muted">No orders yet</h6>
+                            <p class="text-muted mb-3">Start your drone delivery experience today!</p>
+                            <a href="{{ url_for('place_order') }}" class="btn btn-primary">
+                                <i data-feather="plus-circle"></i> Place Your First Order
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Warehouses sidebar -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i data-feather="map-pin" class="me-2"></i>
+                        Warehouses Near You
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex align-items-center gap-3 py-3">
+                            <span style="font-size:22px;">🖥️</span>
+                            <div><div class="fw-medium">Electronics Hub</div><small class="text-muted">Dehradun Central</small></div>
+                        </div>
+                        <div class="list-group-item d-flex align-items-center gap-3 py-3">
+                            <span style="font-size:22px;">💊</span>
+                            <div><div class="fw-medium">Medical Center</div><small class="text-muted">ISBT Dehradun</small></div>
+                        </div>
+                        <div class="list-group-item d-flex align-items-center gap-3 py-3">
+                            <span style="font-size:22px;">🍔</span>
+                            <div><div class="fw-medium">Food Court</div><small class="text-muted">Paltan Bazaar</small></div>
+                        </div>
+                        <div class="list-group-item d-flex align-items-center gap-3 py-3">
+                            <span style="font-size:22px;">📚</span>
+                            <div><div class="fw-medium">Books & Stationery</div><small class="text-muted">Rajpur Road</small></div>
+                        </div>
+                        <div class="list-group-item d-flex align-items-center gap-3 py-3">
+                            <span style="font-size:22px;">🛒</span>
+                            <div><div class="fw-medium">Grocery Store</div><small class="text-muted">Clock Tower</small></div>
+                        </div>
+                        <div class="list-group-item d-flex align-items-center gap-3 py-3">
+                            <span style="font-size:22px;">👗</span>
+                            <div><div class="fw-medium">Fashion Hub</div><small class="text-muted">Ashley Hall</small></div>
+                        </div>
+                        <div class="list-group-item d-flex align-items-center gap-3 py-3">
+                            <span style="font-size:22px;">⚽</span>
+                            <div><div class="fw-medium">Sports Center</div><small class="text-muted">Rispana</small></div>
+                        </div>
+                        <div class="list-group-item d-flex align-items-center gap-3 py-3">
+                            <span style="font-size:22px;">💻</span>
+                            <div><div class="fw-medium">Tech Plaza</div><small class="text-muted">Gandhi Road</small></div>
+                        </div>
+                        <div class="list-group-item d-flex align-items-center gap-3 py-3">
+                            <span style="font-size:22px;">🌿</span>
+                            <div><div class="fw-medium">Home & Garden</div><small class="text-muted">Karanpur</small></div>
+                        </div>
+                        <div class="list-group-item d-flex align-items-center gap-3 py-3">
+                            <span style="font-size:22px;">💉</span>
+                            <div><div class="fw-medium">Pharmacy Plus</div><small class="text-muted">Rajpur Road</small></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{{ url_for('place_order') }}" class="btn btn-primary w-100">
+                        <i data-feather="send"></i> Order Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    let droneMap;
+
+    try {
+        droneMap = new DashboardMapManager('droneMap');
+
+        // Try to get user's location and show it
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    droneMap.addUserLocationMarker(pos.coords.latitude, pos.coords.longitude);
+                },
+                function () { /* silently skip */ }
+            );
+        }
+    } catch (err) {
+        console.error('Map init error:', err);
+        document.getElementById('droneMap').innerHTML = `
+            <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                <div class="text-center">
+                    <i data-feather="map-off" style="width:48px;height:48px;" class="mb-3"></i>
+                    <p>Map temporarily unavailable</p>
+                </div>
+            </div>`;
+        if (typeof feather !== 'undefined') feather.replace();
+    }
+
+    // Locate me button
+    document.getElementById('locateMe').addEventListener('click', function () {
+        if (!droneMap) return;
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    droneMap.addUserLocationMarker(pos.coords.latitude, pos.coords.longitude);
+                    droneMap.map.setView([pos.coords.latitude, pos.coords.longitude], 14);
+                },
+                function () { alert('Could not get your location.'); }
+            );
+        }
+    });
+
+    // Refresh button
+    document.getElementById('refreshMapBtn').addEventListener('click', function () {
+        if (droneMap && typeof droneMap.refreshDroneData === 'function') {
+            droneMap.refreshDroneData();
+            const btn = this;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-feather="refresh-cw"></i> Refresh';
+                if (typeof feather !== 'undefined') feather.replace();
+            }, 1500);
+        }
+    });
+
+    // Auto-refresh drones on map every 30s
+    setInterval(() => {
+        if (droneMap && typeof droneMap.refreshDroneData === 'function') {
+            droneMap.refreshDroneData();
+        }
+    }, 30000);
+});
+
+function cancelOrder(orderId) {
+    if (confirm('Are you sure you want to cancel this order?')) {
+        alert('Order cancellation requires admin confirmation.');
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Swiftpath{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+            <div class="card shadow-custom">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="feature-icon mx-auto mb-3">
+                            <i data-feather="log-in"></i>
+                        </div>
+                        <h2 class="fw-bold text-primary">Welcome Back</h2>
+                        <p class="text-muted">Sign in to your Swiftpath account</p>
+                    </div>
+
+                    <form method="POST" id="loginForm" novalidate>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i data-feather="user" style="width: 18px; height: 18px;"></i>
+                                </span>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="username" 
+                                       name="username" 
+                                       placeholder="Enter your username"
+                                       required
+                                       autocomplete="username">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i data-feather="lock" style="width: 18px; height: 18px;"></i>
+                                </span>
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="password" 
+                                       name="password" 
+                                       placeholder="Enter your password"
+                                       required
+                                       autocomplete="current-password">
+                                <button class="btn btn-outline-secondary" 
+                                        type="button" 
+                                        id="togglePassword"
+                                        title="Show/Hide Password">
+                                    <i data-feather="eye" style="width: 18px; height: 18px;"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="rememberMe" name="remember_me">
+                                <label class="form-check-label" for="rememberMe">
+                                    Remember me
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            <i data-feather="log-in" style="width: 18px; height: 18px;"></i>
+                            Sign In
+                        </button>
+
+                        <div class="text-center">
+                            <a href="#" class="text-decoration-none text-muted small">
+                                Forgot your password?
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <p class="text-muted">
+                    Don't have an account? 
+                    <a href="{{ url_for('register') }}" class="text-decoration-none fw-medium">
+                        Create one here
+                    </a>
+                </p>
+            </div>
+
+            <!-- Demo Credentials Info -->
+            <div class="card border-warning mt-3">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-start">
+                        <i data-feather="info" class="text-warning me-2 mt-1" style="width: 18px; height: 18px;"></i>
+                        <div>
+                            <h6 class="text-warning mb-1">Demo Access</h6>
+                            <p class="small text-muted mb-0">
+                                New to Swiftpath? Create an account to get started with drone delivery services.
+                                Register as a customer to place orders or as an admin to manage the system.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password visibility toggle
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            const icon = this.querySelector('i');
+            if (type === 'password') {
+                icon.setAttribute('data-feather', 'eye');
+            } else {
+                icon.setAttribute('data-feather', 'eye-off');
+            }
+            feather.replace();
+        });
+    }
+
+    // Form validation
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                e.preventDefault();
+                
+                // Show validation feedback
+                if (!username) {
+                    document.getElementById('username').classList.add('is-invalid');
+                }
+                if (!password) {
+                    document.getElementById('password').classList.add('is-invalid');
+                }
+                
+                // Create error message if it doesn't exist
+                let errorAlert = document.querySelector('.alert-danger');
+                if (!errorAlert) {
+                    errorAlert = document.createElement('div');
+                    errorAlert.className = 'alert alert-danger mt-3';
+                    errorAlert.innerHTML = '<i data-feather="alert-circle"></i> Please fill in all required fields.';
+                    loginForm.appendChild(errorAlert);
+                    feather.replace();
+                }
+            }
+        });
+        
+        // Clear validation on input
+        ['username', 'password'].forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('input', function() {
+                    this.classList.remove('is-invalid');
+                    const errorAlert = document.querySelector('.alert-danger');
+                    if (errorAlert) {
+                        errorAlert.remove();
+                    }
+                });
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

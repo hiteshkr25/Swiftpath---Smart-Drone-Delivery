@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+
+{% block title %}Place Order - Swiftpath{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <h1 class="display-6 fw-bold text-primary mb-3">Place Your Order</h1>
+                <p class="lead text-muted">
+                    Select products from multiple warehouses and we'll optimize the delivery route for you
+                </p>
+            </div>
+
+            <form method="POST" id="orderForm" novalidate>
+                <div class="row g-4">
+                    <!-- Product Selection -->
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i data-feather="shopping-bag" class="me-2"></i>
+                                    Select Products
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                {% if warehouses %}
+                                    {% for warehouse in warehouses %}
+                                    <div class="warehouse-section mb-4">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="feature-icon me-3" style="width: 40px; height: 40px;">
+                                                {% if 'Electronics' in warehouse.name %}
+                                                    <i data-feather="monitor" style="width: 20px; height: 20px;"></i>
+                                                {% elif 'Medical' in warehouse.name %}
+                                                    <i data-feather="heart" style="width: 20px; height: 20px;"></i>
+                                                {% elif 'Food' in warehouse.name %}
+                                                    <i data-feather="coffee" style="width: 20px; height: 20px;"></i>
+                                                {% elif 'Books' in warehouse.name %}
+                                                    <i data-feather="book" style="width: 20px; height: 20px;"></i>
+                                                {% elif 'Grocery' in warehouse.name %}
+                                                    <i data-feather="shopping-cart" style="width: 20px; height: 20px;"></i>
+                                                {% else %}
+                                                    <i data-feather="package" style="width: 20px; height: 20px;"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1">{{ warehouse.name }}</h6>
+                                                <small class="text-muted">{{ warehouse.location }}</small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row g-2">
+                                            {% for product in warehouse.get_products_list() %}
+                                            <div class="col-md-6 col-lg-4">
+                                                <div class="product-item">
+                                                    <input type="checkbox" 
+                                                           class="form-check-input d-none" 
+                                                           name="items" 
+                                                           value="{{ warehouse.id }}:{{ product.strip() }}" 
+                                                           id="product_{{ warehouse.id }}_{{ loop.index }}">
+                                                    <label for="product_{{ warehouse.id }}_{{ loop.index }}" class="w-100">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="me-2">
+                                                                {% if 'Laptop' in product %}
+                                                                    📱
+                                                                {% elif 'Medicine' in product %}
+                                                                    💊
+                                                                {% elif 'Snack' in product or 'Food' in product %}
+                                                                    🍕
+                                                                {% elif 'Book' in product %}
+                                                                    📚
+                                                                {% elif 'Grocery' in product or 'Vegetable' in product %}
+                                                                    🥕
+                                                                {% else %}
+                                                                    📦
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="flex-grow-1">
+                                                                <div class="fw-medium">{{ product.strip() }}</div>
+                                                                <small class="text-muted">Available for delivery</small>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% if not loop.last %}
+                                        <hr class="my-4">
+                                    {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="text-center py-5">
+                                        <i data-feather="package" style="width: 48px; height: 48px;" class="text-muted mb-3"></i>
+                                        <h6 class="text-muted">No warehouses available</h6>
+                                        <p class="text-muted">Please try again later.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Details & Summary -->
+                    <div class="col-lg-4">
+                        <!-- Order Summary -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i data-feather="clipboard" class="me-2"></i>
+                                    Order Summary
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="orderSummary">
+                                    <div class="text-center text-muted">
+                                        <i data-feather="shopping-cart" style="width: 32px; height: 32px;" class="mb-2"></i>
+                                        <p class="small mb-0">Select products to see summary</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Location -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i data-feather="map-pin" class="me-2"></i>
+                                    Delivery Location
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-outline-primary w-100" id="getLocationBtn">
+                                        <i data-feather="crosshair"></i>
+                                        Use My Current Location
+                                    </button>
+                                </div>
+
+                                <!-- Interactive Map -->
+                                <div class="mb-3">
+                                    <label class="form-label">Click on the map to set delivery location</label>
+                                    <div class="map-container" id="deliveryMap" style="height: 300px; border: 2px solid #dee2e6; border-radius: 8px;">
+                                        <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                            <div class="text-center">
+                                                <div class="spinner mb-3"></div>
+                                                <p>Loading map...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">Click anywhere on the map to set your delivery location</small>
+                                </div>
+
+                                <!-- Hidden location inputs -->
+                                <input type="hidden" id="delivery_lat" name="delivery_lat" required>
+                                <input type="hidden" id="delivery_lng" name="delivery_lng" required>
+
+                                <!-- Address -->
+                                <div class="mb-3">
+                                    <label for="delivery_address" class="form-label">Delivery Address (Optional)</label>
+                                    <textarea class="form-control" 
+                                              id="delivery_address" 
+                                              name="delivery_address" 
+                                              rows="2" 
+                                              placeholder="Add any specific delivery instructions or landmark details"></textarea>
+                                    <small class="text-muted">This field is optional - your location is set by clicking on the map above</small>
+                                </div>
+
+                                <!-- Location Preview -->
+                                <div id="locationPreview" class="d-none">
+                                    <div class="alert alert-success">
+                                        <div class="d-flex align-items-center">
+                                            <i data-feather="map-pin" class="me-2"></i>
+                                            <div>
+                                                <strong>Delivery location set!</strong><br>
+                                                <small id="locationCoords" class="text-muted"></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i data-feather="send"></i>
+                                Place Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Delivery Info -->
+            <div class="row g-4 mt-5">
+                <div class="col-lg-12">
+                    <div class="card border-info">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="text-info mb-2">
+                                        <i data-feather="info" class="me-2"></i>
+                                        How It Works
+                                    </h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-3">
+                                            <div class="text-center">
+                                                <div class="feature-icon mx-auto mb-2" style="width: 40px; height: 40px;">
+                                                    <span class="fw-bold">1</span>
+                                                </div>
+                                                <small>Select Products</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="text-center">
+                                                <div class="feature-icon mx-auto mb-2" style="width: 40px; height: 40px;">
+                                                    <span class="fw-bold">2</span>
+                                                </div>
+                                                <small>Route Optimization</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="text-center">
+                                                <div class="feature-icon mx-auto mb-2" style="width: 40px; height: 40px;">
+                                                    <span class="fw-bold">3</span>
+                                                </div>
+                                                <small>Drone Assignment</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="text-center">
+                                                <div class="feature-icon mx-auto mb-2" style="width: 40px; height: 40px;">
+                                                    <span class="fw-bold">4</span>
+                                                </div>
+                                                <small>Delivery</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 text-lg-end">
+                                    <div class="text-muted">
+                                        <small>
+                                            <i data-feather="clock" class="me-1"></i>
+                                            Estimated delivery: 15-30 minutes
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize order manager and form validation
+    if (typeof OrderManager !== 'undefined') {
+        new OrderManager();
+    }
+    
+    // Initialize delivery location map
+    let deliveryMapManager = null;
+    
+    // Wait for map container to be ready
+    setTimeout(() => {
+        const mapContainer = document.getElementById('deliveryMap');
+        if (mapContainer && typeof DeliveryLocationMapManager !== 'undefined') {
+            deliveryMapManager = new DeliveryLocationMapManager('deliveryMap').init();
+            
+            // Handle current location button
+            const getLocationBtn = document.getElementById('getLocationBtn');
+            if (getLocationBtn && deliveryMapManager) {
+                getLocationBtn.addEventListener('click', function() {
+                    const originalText = this.innerHTML;
+                    
+                    this.innerHTML = '<span class="spinner"></span> Getting location...';
+                    this.disabled = true;
+                    
+                    deliveryMapManager.setCurrentLocation();
+                    
+                    // Reset button after a moment
+                    setTimeout(() => {
+                        this.innerHTML = '<i data-feather="crosshair"></i> Use My Current Location';
+                        this.disabled = false;
+                        feather.replace();
+                    }, 2000);
+                });
+            }
+        }
+    }, 500);
+    
+    // Form submission validation
+    const orderForm = document.getElementById('orderForm');
+    if (orderForm) {
+        orderForm.addEventListener('submit', function(e) {
+            let isValid = true;
+            const errors = [];
+            
+            // Check if at least one product is selected
+            const selectedProducts = document.querySelectorAll('input[name="items"]:checked');
+            if (selectedProducts.length === 0) {
+                errors.push('Please select at least one product');
+                isValid = false;
+            }
+            
+            // Check weight
+            const weight = parseFloat(document.getElementById('total_weight').value);
+            if (!weight || weight <= 0 || weight > 10) {
+                errors.push('Please enter a valid weight between 0.1 and 10 kg');
+                document.getElementById('total_weight').classList.add('is-invalid');
+                isValid = false;
+            }
+            
+            // Check delivery location
+            const lat = document.getElementById('delivery_lat').value;
+            const lng = document.getElementById('delivery_lng').value;
+            
+            if (!lat || !lng) {
+                errors.push('Please set your delivery location by clicking on the map');
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                showValidationErrors(errors);
+            }
+        });
+    }
+    
+    // Real-time weight validation
+    const weightInput = document.getElementById('total_weight');
+    if (weightInput) {
+        weightInput.addEventListener('input', function() {
+            const weight = parseFloat(this.value);
+            
+            if (weight > 0 && weight <= 10) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else if (this.value) {
+                this.classList.add('is-invalid');
+                this.classList.remove('is-valid');
+            } else {
+                this.classList.remove('is-invalid', 'is-valid');
+            }
+        });
+    }
+    
+    // Address validation (optional field)
+    const addressInput = document.getElementById('delivery_address');
+    if (addressInput) {
+        addressInput.addEventListener('input', function() {
+            // Remove any previous validation classes since address is optional
+            this.classList.remove('is-invalid', 'is-valid');
+        });
+    }
+    
+    function showValidationErrors(errors) {
+        // Remove existing error alert
+        const existingAlert = document.querySelector('.alert-danger');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+        
+        if (errors.length > 0) {
+            const errorAlert = document.createElement('div');
+            errorAlert.className = 'alert alert-danger';
+            errorAlert.innerHTML = `
+                <div class="d-flex align-items-start">
+                    <i data-feather="alert-circle" class="me-2 mt-1"></i>
+                    <div>
+                        <strong>Please fix the following errors:</strong>
+                        <ul class="mb-0 mt-1">
+                            ${errors.map(error => `<li>${error}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            // Insert at the top of the form
+            orderForm.insertBefore(errorAlert, orderForm.firstChild);
+            feather.replace();
+            
+            // Scroll to error
+            errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+});
+</script>
+{% endblock %}

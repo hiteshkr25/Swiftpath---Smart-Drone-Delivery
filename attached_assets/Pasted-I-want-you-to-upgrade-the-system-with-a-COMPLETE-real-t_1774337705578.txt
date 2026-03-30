@@ -1,0 +1,145 @@
+I want you to upgrade the system with a COMPLETE real-time drone battery and charging simulation.
+
+Implement the following features carefully and integrate with existing logic:
+
+-------------------------------
+🚁 DRONE SYSTEM CONFIG
+-------------------------------
+- Total drones: 10
+- Each drone starts with:
+  - battery = 100
+  - status = "idle"
+  - location = nearest charging station
+
+-------------------------------
+⚡ CHARGING STATIONS
+-------------------------------
+- Add 3 fixed charging stations with coordinates
+- Show them on Google Map using YELLOW markers
+- Each drone starts from one of these stations
+
+-------------------------------
+🔋 BATTERY SYSTEM
+-------------------------------
+- Battery drains: 1% per km during movement
+- Battery charges: +5% per minute when at charging station
+- Battery should update dynamically (not static)
+
+-------------------------------
+🚫 ORDER ACCEPTANCE RULE
+-------------------------------
+- Drone can accept order ONLY IF:
+  battery > 30%
+
+- Before assigning order:
+  - Calculate total distance:
+    drone → pickup → drop
+  - Estimate battery required
+  - Reject assignment if battery insufficient
+
+-------------------------------
+🧠 SMART SAFETY SYSTEM
+-------------------------------
+- Ensure battery NEVER reaches 0%
+- Add safety buffer (like 10%)
+- If battery may go too low:
+  → do NOT assign order
+
+-------------------------------
+🔄 DRONE STATES
+-------------------------------
+Each drone must have states:
+- idle
+- assigned
+- picking_up
+- delivering
+- charging
+- low_battery
+
+Update state dynamically
+
+-------------------------------
+⚠️ LOW BATTERY HANDLING
+-------------------------------
+- If battery drops below 20% during delivery:
+  - Mark drone as "low_battery"
+  - Stop assigning new orders
+  - After delivery → go to nearest charging station
+
+-------------------------------
+⚡ CHARGING LOGIC
+-------------------------------
+- When drone is:
+  - idle OR low battery
+  → send to nearest charging station
+
+- While charging:
+  - increase battery 5% per minute
+  - once battery >= 80%
+    → status = "idle"
+
+-------------------------------
+📦 DELIVERY FLOW UPDATE
+-------------------------------
+- After delivery:
+  - drone becomes "idle"
+  - OR goes to charging if battery < 40%
+
+-------------------------------
+📍 MAP INTEGRATION (IMPORTANT)
+-------------------------------
+Update frontend map:
+- Show:
+  - Drone markers
+  - Charging stations (yellow markers)
+- Clicking drone shows:
+  - battery %
+  - status
+- Animate drone movement AND decrease battery accordingly
+
+-------------------------------
+🔁 BACKEND CHANGES
+-------------------------------
+- Modify drone model to include:
+  - battery
+  - status
+  - current_location
+
+- Add functions:
+  - calculate_battery_usage(distance)
+  - find_nearest_charging_station()
+  - update_drone_status()
+  - assign_drone_based_on_battery()
+
+-------------------------------
+⏱ REAL-TIME SIMULATION
+-------------------------------
+- Use interval/timer (JS or backend loop)
+- Update:
+  - drone position
+  - battery level
+  - status
+
+-------------------------------
+📊 (OPTIONAL - IF EASY)
+-------------------------------
+Add event logging:
+- battery_low_event
+- drone_charging_started
+- delivery_completed
+
+-------------------------------
+⚠️ IMPORTANT
+-------------------------------
+- DO NOT break existing delivery system
+- Integrate with current Dijkstra shortest path logic
+- Keep code modular and clean
+- Ensure map and backend stay in sync
+
+-------------------------------
+OUTPUT REQUIRED
+-------------------------------
+- Updated backend (Flask)
+- Updated frontend (JS + map)
+- Any new files clearly explained
+- Step-by-step where changes were made

@@ -1,0 +1,91 @@
+Project Summary:
+We are developing a web-based drone delivery simulation system named Swiftpath focused on the city of Dehradun. The system enables customers to place delivery orders, which are then processed and fulfilled by drones dynamically assigned using algorithmic logic based on shortest paths and delivery optimization.
+
+Current Backend Tech Stack:
+
+Python with Flask (already developed)
+
+SQLite database
+
+Custom delivery logic and simulations based on Design and Analysis of Algorithms (DAA) principles like dijikstra algorithm to find the path of delivery
+
+Data source:
+
+What We Need:
+A modern, responsive frontend UI/UX that integrates smoothly with the backend. The frontend should present a clean, intuitive interface for:
+
+
+
+👤 Customer Interface Register/Login functionality
+In customer dashboard,
+Place a delivery order: we will use customer's live location as drop/delivery location
+also ask for weight of the order + type of order( normal, fast)
+ integrate a map on customer dashboard also to let the user see on the map in which places drones are available nearby
+The main working of this project - there will be 5-6 warehouses in which there will be a different kind of product in each warehouse like 
+
+
+
+
+warehouse 1 : Laptop
+warehouse 2 : medicines
+warehouse 3 : snacks 
+
+and so on.
+now for example customer will select 5 product and then Dijkstra will apply on 6 locations and give us our best route. 
+
+
+Live tracking page or status updates for orders (include a map on which a drone icon will move from pickup to drop location) 
+on clicking the track button, it should navigate to track page where there will be details of the order and a map in which the assigned drone icon will move according to the path finalized. 
+
+Clear visual indication of order confirmation
+In track deliveries page, also add a progress report of order
+
+
+
+🧑‍💼 Vendor/Administrator Interface View all orders
+Monitor drone assignments
+
+Trigger/visualize route simulations
+
+Approve or deny orders (optional)
+
+📍 Map & Route Visualization : integration with a map (static or dynamic) to show delivery routes
+Real-time or simulated movement of drones (could be basic animation or status updates)
+add battery percentage of the drones assigned to be shown to admin only.
+
+
+
+Design Requirements:
+
+Website application
+
+Clean, minimalistic dashboard layout
+
+Separate templates or sections for each user type (Customer, Vendor, Admin)
+
+Use modern UI components (modals, cards, buttons, tabs)
+
+Dark/light mode toggle (optional but appreciated)
+
+All forms should have validations and feedback messages
+
+Assets Available:
+
+Current HTML templates
+
+Existing CSS (can be improved or replaced)
+
+JavaScript logic for tracking (can be reused)
+
+Deliverables:
+
+Updated or new HTML/CSS/JS frontend code
+
+Works seamlessly with Flask backend
+
+Consistent naming and modular structure
+
+Optional: Suggestions for UI improvements or performance boosts
+
+ 
+
