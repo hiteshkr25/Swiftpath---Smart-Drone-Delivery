@@ -69,19 +69,22 @@ def seed_database():
         db.session.flush()
         logging.info('Seeded charging stations')
 
-    # Warehouses
-    if Warehouse.query.count() == 0:
-        for w in WAREHOUSE_SEED_DATA:
-            warehouse = Warehouse(
-                name=w['name'], location=w['location'],
-                lat=w['lat'], lng=w['lng'], products=w['products']
-            )
-            db.session.add(warehouse)
-        logging.info('Seeded warehouses')
+    # Warehouses - remove duplicates
+    # Delete all existing warehouses to ensure exactly 10 unique warehouses
+    Warehouse.query.delete()
+    for w in WAREHOUSE_SEED_DATA:
+        warehouse = Warehouse(
+            name=w['name'], location=w['location'],
+            lat=w['lat'], lng=w['lng'], products=w['products']
+        )
+        db.session.add(warehouse)
+    logging.info('Seeded warehouses - removed duplicates and re-created 10 unique warehouses')
 
-    # Drones
-    if Drone.query.count() == 0:
-        stations = ChargingStation.query.order_by(ChargingStation.id).all()
+    # Drones - remove old Drone-* drones and duplicates, keep only Swift-* drones
+    # Delete all existing drones first
+    Drone.query.delete()
+    stations = ChargingStation.query.order_by(ChargingStation.id).all()
+    if stations:
         for d in DRONE_FLEET_DATA:
             station = stations[d['station_idx']]
             drone = Drone(
@@ -94,7 +97,7 @@ def seed_database():
                 last_battery_update=datetime.utcnow()
             )
             db.session.add(drone)
-        logging.info('Seeded drone fleet')
+    logging.info('Seeded drone fleet - removed old Drone-* drones, keeping only 10 Swift-* drones')
 
     db.session.commit()
 
