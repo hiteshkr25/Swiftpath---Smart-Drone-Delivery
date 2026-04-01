@@ -132,19 +132,23 @@ with app.app_context():
         db.session.flush()
         logging.info("Seeded charging stations")
     
-    # Seed warehouses
-    if Warehouse.query.count() == 0:
-        for w in WAREHOUSE_SEED_DATA:
-            warehouse = Warehouse(
-                name=w['name'], location=w['location'],
-                lat=w['lat'], lng=w['lng'], products=w['products']
-            )
-            db.session.add(warehouse)
-        logging.info("Seeded warehouses")
+    # Seed warehouses - remove duplicates first
+    # Delete all existing warehouses to ensure clean state
+    Warehouse.query.delete()
+    for w in WAREHOUSE_SEED_DATA:
+        warehouse = Warehouse(
+            name=w['name'], location=w['location'],
+            lat=w['lat'], lng=w['lng'], products=w['products']
+        )
+        db.session.add(warehouse)
+    db.session.flush()
+    logging.info("Seeded warehouses - removed duplicates and re-created 10 unique warehouses")
     
-    # Seed drones
-    if Drone.query.count() == 0:
-        stations = ChargingStation.query.order_by(ChargingStation.id).all()
+    # Seed drones - remove old Drone-* drones and duplicates, keep only Swift-* drones
+    # Delete all old/duplicate drones first
+    Drone.query.delete()
+    stations = ChargingStation.query.order_by(ChargingStation.id).all()
+    if stations:
         for d in DRONE_FLEET_DATA:
             station = stations[d['station_idx']]
             drone = Drone(
@@ -157,12 +161,7 @@ with app.app_context():
                 last_battery_update=datetime.utcnow()
             )
             db.session.add(drone)
-        logging.info("Seeded drone fleet")
-    
-    # Remove old drones (Drone-01 to Drone-05)
-    old_drones_deleted = Drone.query.filter(Drone.name.like('Drone-%')).delete()
-    if old_drones_deleted:
-        logging.info(f"Removed {old_drones_deleted} old drones")
+    logging.info("Seeded drone fleet - removed old Drone-* drones, keeping only 10 Swift-* drones")
     
     logging.info("Sample data created successfully")
 
